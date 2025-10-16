@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
+
 project(MyFirmware C)
 
 set(CMAKE_C_STANDARD 11)
@@ -20,3 +21,9 @@ add_custom_command(TARGET myfirmware.elf POST_BUILD
     COMMAND ${CMAKE_OBJCOPY} -O binary myfirmware.elf myfirmware.bin
     COMMENT "Generating .bin from .elf"
 )
+project(MyCMakeProject)
+
+set(CMAKE_CXX_STANDARD 11)
+
+add_executable(MyCMakeProject main.cpp)
+>>>>>>> 3c4ba64 (Add CMake project files for Jenkins build)
