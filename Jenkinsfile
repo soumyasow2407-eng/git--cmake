@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent linuxgit
 
     environment {
         REPO_URL = 'https://github.com/soumyasow2407-eng/git--cmake.git'
