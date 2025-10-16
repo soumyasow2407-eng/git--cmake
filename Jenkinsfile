@@ -2,12 +2,27 @@ pipeline {
     agent { label 'linuxgit' }
 
     environment {
+        GIT_REPO = 'git@github.com:soumyasow2407-eng/git--cmake.git'  // Your repo
         BRANCH = 'main'
-        SONARQUBE_ENV = 'SonarCloud'
-        SONAR_ORGANIZATION = 'soumyasow2407-eng'   // SonarCloud organization key
-        SONAR_PROJECT_KEY = 'git-cmake-project'    // Unique project key
-       
 
+        // SonarCloud Configuration
+        SONARQUBE_ENV = 'SonarCloud'
+        SONAR_ORGANIZATION = 'soumyasow2407-eng'
+        SONAR_PROJECT_KEY = 'git-cmake-project'
+    }
+
+    stages {
+        stage('Configure Git') {
+            steps {
+                echo 'Checking out source code from Git...'
+                checkout([$class: 'GitSCM',
+                    branches: [[name: "*/${BRANCH}"]],
+                    userRemoteConfigs: [[
+                        url: "${GIT_REPO}",
+                        credentialsId: 'gitHub-ssh-key'   // Your Git credential ID
+                    ]]
+                ])
+            }
         }
 
         stage('Prepare Tools') {
