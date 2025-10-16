@@ -93,21 +93,25 @@ pipeline {
         stage('SonarCloud Analysis') {
     
 
-            steps {
-                echo 'Running SonarCloud analysis...'
-                withSonarQubeEnv("${SONARQUBE_ENV}") {
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.organization=${SONAR_ORGANIZATION} \
-                          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                          -Dsonar.sources=src \
-                          -Dsonar.cfamily.compile-commands=compile_commands.json \
-                          -Dsonar.host.url=https://sonarcloud.io \
-                          -Dsonar.sourceEncoding=UTF-8
-                    '''
-                }
-            }
+            stage('SonarCloud Analysis') {
+    steps {
+        echo 'Running SonarCloud analysis...'
+        withSonarQubeEnv("${SONARQUBE_ENV}") {
+            sh '''
+                sonar-scanner \
+                  -Dsonar.organization=${SONAR_ORGANIZATION} \
+                  -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                  -Dsonar.sources=src \
+                  -Dsonar.cfamily.compile-commands=compile_commands.json \
+                  -Dsonar.host.url=https://sonarcloud.io \
+                  -Dsonar.sourceEncoding=UTF-8 \
+                  -Dsonar.pullrequest.key= \
+                  -Dsonar.pullrequest.branch= \
+                  -Dsonar.pullrequest.base=
+            '''
         }
+    }
+}
     }
 
     post {
