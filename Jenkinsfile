@@ -91,6 +91,10 @@ pipeline {
         }
 
         stage('SonarCloud Analysis') {
+                when {
+        branch 'main'
+    }
+
             steps {
                 echo 'Running SonarCloud analysis...'
                 withSonarQubeEnv("${SONARQUBE_ENV}") {
