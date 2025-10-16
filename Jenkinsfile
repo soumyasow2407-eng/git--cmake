@@ -2,10 +2,9 @@ pipeline {
     agent { label 'linuxgit' }
 
     environment {
-        GIT_REPO = 'git@github.com:soumyasow2407-eng/git--cmake.git'  // Your repo
+        GIT_REPO = 'git@github.com:soumyasow2407-eng/git--cmake.git'
         BRANCH = 'main'
 
-        // SonarCloud Configuration
         SONARQUBE_ENV = 'SonarCloud'
         SONAR_ORGANIZATION = 'soumyasow2407-eng'
         SONAR_PROJECT_KEY = 'soumyasow2407-eng_git--cmake'
@@ -19,7 +18,7 @@ pipeline {
                     branches: [[name: "*/${BRANCH}"]],
                     userRemoteConfigs: [[
                         url: "${GIT_REPO}",
-                        credentialsId: 'gitHub-ssh-key'   // Your Git credential ID
+                        credentialsId: 'gitHub-ssh-key'
                     ]]
                 ])
             }
@@ -32,7 +31,6 @@ pipeline {
                     sudo apt update
                     sudo apt install -y python3 python3-pip dos2unix cmake gcc g++
                     pip3 install --quiet --break-system-packages cmakelint
-
                 '''
             }
         }
@@ -43,8 +41,7 @@ pipeline {
                 sh '''
                     if [ -d src ]; then
                         $HOME/.local/bin/cmakelint src/*.c > lint_report.txt || true
-
-                else
+                    else
                         echo "Source directory not found!"
                         exit 1
                     fi
@@ -91,27 +88,21 @@ pipeline {
         }
 
         stage('SonarCloud Analysis') {
-    
-
-            stage('SonarCloud Analysis') {
-    steps {
-        echo 'Running SonarCloud analysis...'
-        withSonarQubeEnv("${SONARQUBE_ENV}") {
-            sh '''
-                sonar-scanner \
-                  -Dsonar.organization=${SONAR_ORGANIZATION} \
-                  -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                  -Dsonar.sources=src \
-                  -Dsonar.cfamily.compile-commands=compile_commands.json \
-                  -Dsonar.host.url=https://sonarcloud.io \
-                  -Dsonar.sourceEncoding=UTF-8 \
-                  -Dsonar.pullrequest.key= \
-                  -Dsonar.pullrequest.branch= \
-                  -Dsonar.pullrequest.base=
-            '''
+            steps {
+                echo 'Running SonarCloud analysis...'
+                withSonarQubeEnv("${SONARQUBE_ENV}") {
+                    sh '''
+                        sonar-scanner \
+                          -Dsonar.organization=${SONAR_ORGANIZATION} \
+                          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                          -Dsonar.sources=src \
+                          -Dsonar.cfamily.compile-commands=compile_commands.json \
+                          -Dsonar.host.url=https://sonarcloud.io \
+                          -Dsonar.sourceEncoding=UTF-8
+                    '''
+                }
+            }
         }
-    }
-}
     }
 
     post {
@@ -126,3 +117,4 @@ pipeline {
         }
     }
 }
+
