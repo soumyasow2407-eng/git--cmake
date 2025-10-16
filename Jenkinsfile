@@ -2,22 +2,12 @@ pipeline {
     agent { label 'linuxgit' }
 
     environment {
-        REPO_URL = 'git@github.com:soumyasow2407-eng/git--cmake.git'
         BRANCH = 'main'
         SONARQUBE_ENV = 'SonarCloud'
         SONAR_ORGANIZATION = 'soumyasow2407-eng'   // SonarCloud organization key
         SONAR_PROJECT_KEY = 'git-cmake-project'    // Unique project key
-        GIT_CREDENTIALS_ID = 'gitHub-ssh-key'      // SSH key credentials ID
-    }
+       
 
-    stages {
-        stage('Checkout') {
-            steps {
-                echo 'Cloning repository via SSH...'
-                git branch: "${BRANCH}",
-                    url: "${REPO_URL}",
-                    credentialsId: "${GIT_CREDENTIALS_ID}"
-            }
         }
 
         stage('Prepare Tools') {
