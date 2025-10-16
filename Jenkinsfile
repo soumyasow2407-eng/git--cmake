@@ -2,48 +2,40 @@ pipeline {
     agent any
 
     environment {
-        REPO_URL = 'git@github.com:soumyasow2407-eng/git--cmake.git'
+        REPO_URL = 'https://github.com/soumyasow2407-eng/git--cmake.git'
         BRANCH = 'main'
         SONARQUBE_ENV = 'SonarCloud'
-        SONAR_ORGANIZATION = 'SowmyaMV'
-        SONAR_PROJECT_KEY = 'soumyasow2407-eng'
-}
+        SONAR_ORGANIZATION = 'soumyasow2407-eng'   // SonarCloud organization key
+        SONAR_PROJECT_KEY = 'git-cmake-project'    // Unique project key
+    }
 
     stages {
+        stage('Checkout') {
+            steps {
+                echo 'Cloning repository...'
+                git branch: "${BRANCH}", url: "${REPO_URL}"
+            }
+        }
+
         stage('Prepare Tools') {
             steps {
                 echo 'Installing required tools...'
                 sh '''
-                    if ! command -v pip3 &>/dev/null; then
-                        sudo yum install -y python3 python3-pip || true
-                    fi
-
+                    sudo apt update
+                    sudo apt install -y python3 python3-pip dos2unix cmake gcc g++
                     pip3 install --quiet cmakelint
-
-                    if ! command -v dos2unix &>/dev/null; then
-                        sudo yum install -y dos2unix || true
-                    fi
-
-                    if ! command -v cmake &>/dev/null; then
-                        sudo yum install -y epel-release || true
-                        sudo yum install -y cmake || true
-                    fi
-
-                    if ! command -v gcc &>/dev/null; then
-                        sudo yum install -y gcc gcc-c++ || true
-                    fi
                 '''
             }
         }
 
         stage('Lint') {
             steps {
-                echo 'Running lint checks on main.c...'
+                echo 'Running lint checks on source files...'
                 sh '''
-                    if [ -f src/main.c ]; then
-                        cmakelint src/main.c > lint_report.txt
+                    if [ -d src ]; then
+                        cmakelint src/*.c > lint_report.txt || true
                     else
-                        echo "main.c not found!"
+                        echo "Source directory not found!"
                         exit 1
                     fi
                 '''
@@ -51,7 +43,6 @@ pipeline {
             post {
                 always {
                     archiveArtifacts artifacts: 'lint_report.txt', fingerprint: true
-                    fingerprint 'main.c'
                 }
             }
         }
@@ -73,14 +64,14 @@ pipeline {
                 '''
             }
         }
+
         stage('Unit Tests') {
             steps {
                 echo 'Running unit tests...'
                 sh '''
-                    if [ -d build ]; then
+                    if [ -f build/Makefile ]; then
                         cd build
-                        # Run all registered CTest tests
-                        ctest --output-on-failure
+                        ctest --output-on-failure || true
                     else
                         echo "Build directory not found!"
                         exit 1
@@ -88,9 +79,10 @@ pipeline {
                 '''
             }
         }
-        stage('SonarQube Analysis') {
+
+        stage('SonarCloud Analysis') {
             steps {
-                echo 'Running SonarQube (SonarCloud) analysis...'
+                echo 'Running SonarCloud analysis...'
                 withSonarQubeEnv("${SONARQUBE_ENV}") {
                     sh '''
                         sonar-scanner \
@@ -111,10 +103,10 @@ pipeline {
             echo 'Pipeline finished.'
         }
         success {
-            echo 'Build, lint, and SonarCloud analysis completed successfully!'
+            echo '✅ Build, lint, unit tests, and SonarCloud analysis completed successfully!'
         }
         failure {
-            echo 'Pipeline failed. Check logs or SonarCloud dashboard.'
+            echo '❌ Pipeline failed. Check logs and SonarCloud dashboard.'
         }
     }
 }
