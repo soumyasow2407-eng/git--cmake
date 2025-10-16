@@ -31,7 +31,8 @@ pipeline {
                 sh '''
                     sudo apt update
                     sudo apt install -y python3 python3-pip dos2unix cmake gcc g++
-                    pip3 install --quiet cmakelint
+                    pip3 install --quiet --break-system-packages cmakelint
+
                 '''
             }
         }
