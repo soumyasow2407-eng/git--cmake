@@ -42,8 +42,9 @@ pipeline {
                 echo 'Running lint checks on source files...'
                 sh '''
                     if [ -d src ]; then
-                        cmakelint src/*.c > lint_report.txt || true
-                    else
+                        $HOME/.local/bin/cmakelint src/*.c > lint_report.txt || true
+
+                else
                         echo "Source directory not found!"
                         exit 1
                     fi
