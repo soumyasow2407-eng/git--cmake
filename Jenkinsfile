@@ -8,7 +8,7 @@ pipeline {
         // SonarCloud Configuration
         SONARQUBE_ENV = 'SonarCloud'
         SONAR_ORGANIZATION = 'soumyasow2407-eng'
-        SONAR_PROJECT_KEY = 'git-cmake-project'
+        SONAR_PROJECT_KEY = 'soumyasow2407-eng_git--cmake'
     }
 
     stages {
